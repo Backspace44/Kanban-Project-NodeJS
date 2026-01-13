@@ -1,69 +1,48 @@
-# Kanban-Project-NodeJS
-This project implements a complete backend API for a Kanban / Project Management (Trello-like) application. 
+# Kanban / Project Management (Trello-like) — GraphQL + JWT + Prisma (with migrations)
 
-# Kanban / Project Management API (Trello-like)
-GraphQL + Apollo Server + Express + Prisma + SQLite + JWT + Jest Tests
+## Tech
+- Node.js + TypeScript
+- GraphQL (Apollo Server) + Express
+- Prisma ORM (SQLite) **with migrations**
+- JWT authentication + role-based authorization
+- Offset pagination
+- Automated tests (Jest + Supertest)
+- CI workflow (GitHub Actions)
 
-This project is a fully functional backend API for a **Kanban / Project Management** application (Trello-like). It supports:
-- users (register/login)
-- boards (projects)
-- columns (lists)
-- tasks (cards: create/move/assign)
-- comments
-- labels/tags
-- project invitations (invite/accept)
-- activity log (audit trail)
+## Quick start (local)
+```bash
+cp .env.example .env
+npm install
+npm run prisma:generate
 
-The API is exposed via **GraphQL** at:
-- `POST /graphql`
+# Apply migrations (creates tables)
+npm run prisma:migrate:deploy
 
----
+# Optional: add demo data
+npm run prisma:seed
 
-## Tech Stack
-- **Node.js** + **TypeScript**
-- **Express.js** (HTTP server + middleware)
-- **Apollo Server** (GraphQL API)
-- **Prisma ORM**
-- **SQLite** (`dev.db` local database file)
-- **JWT Authentication**
-- **Jest + Supertest** (integration tests)
+npm run dev
+```
 
----
+Open:
+- GraphQL endpoint: `http://localhost:4000/graphql`
+- Health: `http://localhost:4000/health`
 
-## Project Structure
+Seed creates:
+- admin@example.com / Password123!
+- user@example.com / Password123!
 
-```txt
-kanban-graphql-migrations/
-├─ .github/
-│  └─ workflows/
-│     └─ ci.yml
-├─ prisma/
-│  ├─ migrations/
-│  │  ├─ migration_lock.toml
-│  │  └─ <timestamp>_init/
-│  │     └─ migration.sql
-│  ├─ schema.prisma
-│  └─ seed.ts
-├─ src/
-│  ├─ auth/
-│  │  ├─ guards.ts
-│  │  ├─ jwt.ts
-│  │  └─ password.ts
-│  ├─ graphql/
-│  │  ├─ resolvers/
-│  │  │  └─ index.ts
-│  │  └─ typeDefs.ts
-│  ├─ context.ts
-│  ├─ errors.ts
-│  ├─ index.ts
-│  ├─ prisma.ts
-│  ├─ server.ts
-│  └─ validation.ts
-├─ tests/
-│  └─ kanban.test.ts
-├─ .env.example
-├─ jest.config.cjs
-├─ package.json
-└─ tsconfig.json
- 
+## Developing schema changes (creating new migrations)
+After you edit `prisma/schema.prisma`, create and apply a new migration:
+```bash
+npm run prisma:migrate:dev
+```
 
+## Running tests
+```bash
+npm test
+```
+
+## Notes
+- GraphQL schema exposes nested objects (e.g., `Task.assignee`, `Task.column`, `Project.members`) instead of foreign key IDs in responses.
+- For actions tied to the current user (e.g., `createProject`, `commentTask`), user identity is derived from JWT context, not passed as arguments.
